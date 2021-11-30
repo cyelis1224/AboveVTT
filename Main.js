@@ -103,6 +103,15 @@ function getPlayerIDFromSheet(sheet_url)
 	return playerID;
 }
 
+function report_connection(){
+    var msgdata = {
+        player: window.PLAYER_NAME,
+        img: window.PLAYER_IMG,
+        text: PLAYER_NAME + " has connected to the server!",
+    };
+    window.MB.inject_chat(msgdata);
+} 
+
 window.YTTIMEOUT = null;
 
 function load_scenemap(url, width = null, height = null, callback = null) {
@@ -337,7 +346,7 @@ function load_monster_stat(monsterid) {
 
 function init_controls() {
 	$(".sidebar").css("top", "10px");
-	$(".sidebar").css("height", "calc(100vh - 45px)");
+	$(".sidebar").css("height", "calc(100vh - 32px)");
 
 	$("span.sidebar__control-group.sidebar__control-group--lock > button").click(); // CLICKA SU lucchetto
 	$(".sidebar__controls").empty();
@@ -621,6 +630,7 @@ function init_sheet(){
 	container.css('background', '#242527');
 	container.css('z-index', 0);
 	var buttonleft = 0;
+	var buttonprev = 0;
 
 	var close_button = $("<button>X</button>");
 
@@ -629,6 +639,7 @@ function init_sheet(){
 	close_button.css("top", "0px");
 	close_button.css("left", buttonleft);
 	buttonleft+=27;
+	buttonprev+=54;
 	close_button.css("height", "23px");
 	close_button.css("width", "25px");
 	close_button.click(function() {
@@ -658,6 +669,27 @@ function init_sheet(){
 		});
 	});
 	container.append(reload_button);
+	
+	var resize_button = $("<button>⇹</button>");
+
+	resize_button.css("position", "absolute");
+	resize_button.css('display', 'none');
+	resize_button.css("top", "0px");
+	resize_button.css("left", buttonprev);
+	resize_button.css("height", "23px");
+	resize_button.css("width", "25px");
+	resize_button.click(function() {
+		$("#sheet").each(function(){
+			if($(this).css('width') == '1025px')
+			{
+				$(this).css('width', '420px');
+			}
+			else{
+				$(this).css('width', '1025px');
+				};
+		});
+	});
+	container.append(resize_button);
 
 	//container.height($(".sidebar__inner").height() - 20);
 
@@ -1422,6 +1454,7 @@ function init_ui() {
 			window.MB.sendMessage("custom/myVTT/syncmeup");
 			window.MB.sendMessage("custom/myVTT/playerjoin");
 			init_player_sheet(window.PLAYER_SHEET);
+			report_connection();
 			//open_player_sheet(window.PLAYER_SHEET, false);
 		}, 5000);
 	}
@@ -1814,9 +1847,19 @@ $(function() {
 	// SCB: Append our logo
 	contentDiv.append($("<img class='above-vtt-logo above-vtt-right-margin-5px' width='120px' src='" + window.EXTENSION_PATH + "assets/logo.png'>"));
 
-	if(is_dm){
-		contentDiv.append($("<a class='above-vtt-campaignscreen-blue-button above-vtt-right-margin-5px button joindm btn modal-link ddb-campaigns-detail-body-listing-campaign-link'>JOIN AS DM</a>"));
+		if(is_dm){
+		newlink_dm = $("<a class='above-vtt-campaignscreen-blue-button above-vtt-right-margin-5px button joindm btn modal-link ddb-campaigns-detail-body-listing-campaign-link'>JOIN AS DM</a>");
+		contentDiv.append(newlink_dm);
 	}
+
+		newlink_dm.click(function(e){
+			e.preventDefault();
+			/*This makes the scrollbars dissappear once you are on the table*/
+			$("body").each(function(){
+				$(this).css('overflow', 'hidden')
+			});
+			/*its crude but it works*/
+		});
 
 	$(".ddb-campaigns-character-card-footer-links").each(function() {
 		if($(this).find(".ddb-campaigns-character-card-footer-links-item-edit").length==0)
@@ -1839,6 +1882,11 @@ $(function() {
 			window.PLAYER_NAME = name;
 			window.PLAYER_ID = getPlayerIDFromSheet(sheet);
 			window.DM = false;
+			/*This makes the scrollbars dissappear once you are on the table*/
+			$("body").each(function(){
+				$(this).css('overflow', 'hidden')
+			});
+			/*its crude but it works*/
 			init_ui();
 		});
 
